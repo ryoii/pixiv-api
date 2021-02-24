@@ -19,7 +19,7 @@ func main() {
 
 	client := pixiv.Client{Cxt: pixiv.NewContext(*token, *refreshToken)}
 
-	if proxy != nil {
+	if *proxy != "" {
 		client.Cxt.Proxy = *proxy
 	}
 

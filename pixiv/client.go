@@ -14,11 +14,9 @@ type Client struct {
 }
 
 func (c *Client) init() {
-	var transport *http.Transport
+	var transport = &http.Transport{}
 	if c.Cxt.Proxy != "" {
-		transport = &http.Transport{
-			Proxy: http.ProxyURL(&url.URL{Host: c.Cxt.Proxy}),
-		}
+		transport.Proxy = http.ProxyURL(&url.URL{Host: c.Cxt.Proxy})
 	}
 	c.http = http.Client{
 		Transport: transport,
