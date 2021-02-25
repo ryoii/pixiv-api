@@ -81,7 +81,7 @@ jobs:
         with:
           upload_url: ${{ needs.pre-build.outputs.upload_url }}
           asset_path: build/${{ matrix.platform-os }}-${{ matrix.platform-arch }}/pixiv-api${{ matrix.ext }}
-          asset_name: pixiv-api-${{ matrix.platform-os }}-${{ matrix.platform-arch }}-${{ github.ref }}${{ matrix.ext }}
+          asset_name: pixiv-api-${{ matrix.platform-os }}-${{ matrix.platform-arch }}-v${{ needs.pre-build.outputs.tag }}${{ matrix.ext }}
           asset_content_type: application/octet-stream
 
       - name: Chmod for pixiv-api-linux-amd64
