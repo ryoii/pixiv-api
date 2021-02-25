@@ -3,21 +3,22 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"log"
 	"net/http"
+	"os"
 	"pixiv_api/pixiv"
 	"strconv"
 	"time"
 )
 
 func main() {
-	token := flag.String("a", "", "Access Token")
 	refreshToken := flag.String("r", "", "Refresh Token")
 	host := flag.String("h", ":9630", "Port")
 	proxy := flag.String("p", "", "Proxy")
-
 	flag.Parse()
+	coverFromEnv(refreshToken, host, proxy)
 
-	client := pixiv.Client{Cxt: pixiv.NewContext(*token, *refreshToken)}
+	client := pixiv.Client{Cxt: pixiv.NewContext(*refreshToken)}
 
 	if *proxy != "" {
 		client.Cxt.Proxy = *proxy
@@ -25,7 +26,11 @@ func main() {
 
 	client.Login()
 
+	logger := log.New(os.Stdout, "http", log.LstdFlags)
+
 	http.HandleFunc("/illust", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /illust")
+
 		pid, err := strconv.ParseInt(request.URL.Query().Get("pid"), 10, 32)
 		if err != nil {
 			writer.WriteHeader(400)
@@ -37,6 +42,8 @@ func main() {
 	})
 
 	http.HandleFunc("/related", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /related")
+
 		pid, err := strconv.ParseInt(request.URL.Query().Get("pid"), 10, 32)
 		if err != nil {
 			writer.WriteHeader(400)
@@ -48,6 +55,8 @@ func main() {
 	})
 
 	http.HandleFunc("/user", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /user")
+
 		id, err := strconv.ParseInt(request.URL.Query().Get("id"), 10, 32)
 		if err != nil {
 			writer.WriteHeader(400)
@@ -59,6 +68,8 @@ func main() {
 	})
 
 	http.HandleFunc("/userIllust", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /userIllust")
+
 		id, err := strconv.ParseInt(request.URL.Query().Get("id"), 10, 32)
 		if err != nil {
 			writer.WriteHeader(400)
@@ -70,6 +81,8 @@ func main() {
 	})
 
 	http.HandleFunc("/rank", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /rank")
+
 		mode := request.URL.Query().Get("mode")
 		if mode == "" {
 			writer.WriteHeader(400)
@@ -82,6 +95,8 @@ func main() {
 	})
 
 	http.HandleFunc("/searchByTitle", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /searchByTitle")
+
 		title := request.URL.Query().Get("title")
 		if title == "" {
 			writer.WriteHeader(400)
@@ -93,6 +108,8 @@ func main() {
 	})
 
 	http.HandleFunc("/searchByTags", func(writer http.ResponseWriter, request *http.Request) {
+		logger.Printf("handling: /searchByTags")
+
 		tag := request.URL.Query().Get("tag")
 		if tag == "" {
 			writer.WriteHeader(400)
@@ -103,5 +120,24 @@ func main() {
 		_, _ = writer.Write(b)
 	})
 
+	logger.Println("Server listening on " + *host)
+	if *proxy != "" {
+		logger.Println("proxy by " + *proxy)
+	}
 	_ = http.ListenAndServe(*host, nil)
+}
+
+func coverFromEnv(refreshToken, host, proxy *string) {
+	r := os.Getenv("refresh_token")
+	h := os.Getenv("host")
+	p := os.Getenv("proxy")
+	if r != "" {
+		*refreshToken = r
+	}
+	if h != "" {
+		*host = h
+	}
+	if p != "" {
+		*proxy = p
+	}
 }

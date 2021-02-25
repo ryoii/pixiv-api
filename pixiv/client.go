@@ -2,6 +2,7 @@ package pixiv
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -29,6 +30,7 @@ func (c *Client) Login() {
 }
 
 func (c *Client) RefreshToken() {
+	fmt.Println("refresh token: " + c.Cxt.Token)
 	form := url.Values{
 		"client_id":      {clientId},
 		"client_secret":  {clientSecret},
@@ -47,6 +49,7 @@ func (c *Client) RefreshToken() {
 
 	c.Cxt.Token = oauth.AccessToken
 	c.Cxt.RefreshKey = oauth.RefreshToken
+	fmt.Println("refresh token success: " + c.Cxt.Token)
 }
 
 func (c *Client) Illust(pid int) *Illust {
