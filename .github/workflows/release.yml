@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  pre-build:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+      tag: ${{ steps.tag.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Download Go Dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -v -o ./test ./main
+
+      - name: Get Tag
+        id: tag
+        run: |
+          tag=$(echo ${{ github.ref }} | cut -dv -f2)
+          echo "::set-output name=tag::$tag"
+
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: pixiv-api-${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: false
+
+  build:
+    runs-on: ubuntu-latest
+    needs: pre-build
+    strategy:
+      matrix:
+        platform-os: [linux, windows]
+        platform-arch: [amd64]
+        include:
+          - platform-os: windows
+            ext: .exe
+          - platform-os: linux
+            platform-arch: amd64
+            build: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Download Go Dependencies
+        run: go mod download
+
+      - name: Build ${{ matrix.platform-os }} ${{ matrix.platform-arch }} target
+        run: |
+          CGO_ENABLED=0 GOOS=${{ matrix.platform-os }} GOARCH=${{ matrix.platform-arch }} \
+          go build -ldflags="-s -w" -o \
+          build/${{ matrix.platform-os }}-${{ matrix.platform-arch }}/pixiv-api${{ matrix.ext }} ./main
+
+      - name: Upload Release ${{ matrix.platform-os }} ${{ matrix.platform-arch }} Target
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.pre-build.outputs.upload_url }}
+          asset_path: build/${{ matrix.platform-os }}-${{ matrix.platform-arch }}/pixiv-api${{ matrix.ext }}
+          asset_name: pixiv-api-${{ matrix.platform-os }}-${{ matrix.platform-arch }}-${{ github.ref }}${{ matrix.ext }}
+          asset_content_type: application/octet-stream
+
+      - name: Chmod for pixiv-api-linux-amd64
+        if: ${{ matrix.build == true }}
+        run: chmod u+x build/linux-amd64/pixiv-api
+
+      - name: Build and Push Docker Iamge
+        if: ${{ matrix.build == true }}
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/pixiv-api
+          path: ./build/linux-amd64
+          dockerfile: ./Dockerfile
+          tags: ${{ needs.pre-build.outputs.tag }},latest
