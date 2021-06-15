@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"net"
-	"strings"
 	"time"
 )
 
@@ -44,11 +43,6 @@ func dial(network, addr string, config *tls.Config) (*tls.Conn, error) {
 	rawConn, err := netDialer.DialContext(ctx, network, addr)
 	if err != nil {
 		return nil, err
-	}
-
-	colonPos := strings.LastIndex(addr, ":")
-	if colonPos == -1 {
-		colonPos = len(addr)
 	}
 
 	if config == nil {
