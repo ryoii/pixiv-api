@@ -26,8 +26,9 @@ type Context struct {
 	Proxy      string
 }
 
-func NewContext(refreshKey string) Context {
+func NewContext(token, refreshKey string) Context {
 	return Context{
+		Token:      token,
 		RefreshKey: refreshKey,
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"pixiv_api/network"
 	"strconv"
 	"time"
 )
@@ -15,18 +16,14 @@ type Client struct {
 }
 
 func (c *Client) init() {
-	var transport = &http.Transport{}
-	if c.Cxt.Proxy != "" {
-		transport.Proxy = http.ProxyURL(&url.URL{Host: c.Cxt.Proxy})
-	}
-	c.http = http.Client{
-		Transport: transport,
-	}
+	c.http = network.NewClient()
 }
 
 func (c *Client) Login() {
 	c.init()
-	c.RefreshToken()
+	if c.Cxt.Token == "" {
+		c.RefreshToken()
+	}
 }
 
 func (c *Client) RefreshToken() {
