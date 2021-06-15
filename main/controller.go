@@ -14,15 +14,10 @@ import (
 func main() {
 	refreshToken := flag.String("r", "", "Refresh Token")
 	host := flag.String("h", ":9630", "Port")
-	proxy := flag.String("p", "", "Proxy")
 	flag.Parse()
-	coverFromEnv(refreshToken, host, proxy)
+	coverFromEnv(refreshToken, host)
 
-	client := pixiv.Client{Cxt: pixiv.NewContext(*refreshToken)}
-
-	if *proxy != "" {
-		client.Cxt.Proxy = *proxy
-	}
+	client := pixiv.Client{Cxt: pixiv.NewContext("", *refreshToken)}
 
 	client.Login()
 
@@ -121,23 +116,17 @@ func main() {
 	})
 
 	logger.Println("Server listening on " + *host)
-	if *proxy != "" {
-		logger.Println("proxy by " + *proxy)
-	}
+
 	_ = http.ListenAndServe(*host, nil)
 }
 
-func coverFromEnv(refreshToken, host, proxy *string) {
+func coverFromEnv(refreshToken, host *string) {
 	r := os.Getenv("refresh_token")
 	h := os.Getenv("host")
-	p := os.Getenv("proxy")
 	if r != "" {
 		*refreshToken = r
 	}
 	if h != "" {
 		*host = h
-	}
-	if p != "" {
-		*proxy = p
 	}
 }
