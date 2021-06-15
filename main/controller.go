@@ -32,7 +32,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.Illust(int(pid)))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -45,7 +45,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.Related(int(pid), 0))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -58,7 +58,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.Member(int(id)))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -71,7 +71,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.MemberIllusts(int(id), 0))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -85,7 +85,7 @@ func main() {
 		}
 		yesterday := time.Now().AddDate(0, 0, -1)
 		b, _ := json.Marshal(client.Rank(mode, 0, &yesterday))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -98,7 +98,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.SearchByTitle(title))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
@@ -111,7 +111,7 @@ func main() {
 			return
 		}
 		b, _ := json.Marshal(client.SearchByTags(tag))
-		writer.Header().Set("Context-Type", "application/json")
+		writer.Header().Set("content-type", "application/json")
 		_, _ = writer.Write(b)
 	})
 
