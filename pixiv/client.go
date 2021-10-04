@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Client is an interface for pixiv api.
 type Client struct {
 	Cxt  Context
 	http http.Client
@@ -154,6 +155,6 @@ func (c *Client) SearchByTagsStrict(tag string) []*Illust {
 
 func parseJson(bytes []byte, resp interface{}) {
 	if err := json.Unmarshal(bytes, resp); err != nil {
-		panic("序列化错误")
+		panic("Serializer error." + err.Error())
 	}
 }

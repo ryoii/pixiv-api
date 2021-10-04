@@ -19,8 +19,6 @@ func (c *Client) get(url string, value url.Values) []byte {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 400 {
-		b, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println("请求错误：" + util.Byte2Str(b))
 		c.RefreshToken()
 		return c.get(url, value)
 	}

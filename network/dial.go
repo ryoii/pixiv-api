@@ -13,6 +13,10 @@ func (timeoutError) Error() string   { return "tls: DialWithDialer timed out" }
 func (timeoutError) Timeout() bool   { return true }
 func (timeoutError) Temporary() bool { return true }
 
+// Tcp dial copied from std lib tls.dial.
+// How it works? In tls.dial, He will confirm whether the servername is empty.
+// If empty tls.dial will set the hostname as servername.
+// But in network.dial, it will ignore the case where the servername is empty.
 func dial(network, addr string, config *tls.Config) (*tls.Conn, error) {
 	ctx := context.Background()
 	netDialer := new(net.Dialer)
