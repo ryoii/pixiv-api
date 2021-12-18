@@ -52,7 +52,9 @@ func init() {
 	localDns["oauth.secure.pixiv.net"] = &lsApp
 	localDns["app-api.pixiv.net"] = &lsApp
 
-	for i := 199; i <= 223; i++ {
-		lsApp = append(lsApp, "210.140.131."+strconv.FormatInt(int64(i), 10))
+	ips := []int{199, 219, 223, 226}
+
+	for _, ip := range ips {
+		lsApp = append(lsApp, "210.140.131."+strconv.FormatInt(int64(ip), 10))
 	}
 }
